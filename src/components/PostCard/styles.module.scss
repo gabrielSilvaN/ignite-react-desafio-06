@@ -1,6 +1,8 @@
 .container {
+    display: block;
     .title {
         color: var(--heading);
+        font-weight: 700;
     }
 
     .subtitle {
@@ -10,26 +12,7 @@
         margin-bottom: 1.5rem;
     }
 
-    .info {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-
-        span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--info);
-            font-size: 0.875rem;
-            line-height: 1.05rem;
-
-            svg {
-                color: var(--info);
-            }
-        }
-    }
-
     & + & {
-        margin-top: 2rem;
+        margin-top: 3rem;
     }
 }

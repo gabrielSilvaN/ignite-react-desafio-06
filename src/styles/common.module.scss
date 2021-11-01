@@ -1,1 +1,25 @@
-// TODO
+.content {
+    max-width: var(--container-width);
+    width: 100%;
+    margin: 0 auto;
+    padding: 64px 20px;
+}
+
+.info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    span {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        color: var(--info);
+        font-size: 0.875rem;
+        line-height: 1.05rem;
+
+        svg {
+            color: var(--info);
+        }
+    }
+}

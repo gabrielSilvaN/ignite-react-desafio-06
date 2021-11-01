@@ -1,1 +1,31 @@
-// TODO
+.title {
+    color: var(--heading);
+    font-weight: 700;
+    font-size: 3rem;
+    line-height: 3.625rem;
+    margin-bottom: 1.5rem;
+}
+
+.infoPost {
+    margin-bottom: 4rem;
+}
+
+.banner {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+.subtitle {
+    color: var(--heading);
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 3.625rem;
+    margin-bottom: 1.5rem;
+}
+
+.text {
+    color: var(--body);
+    font-size: 1.125rem;
+    margin-bottom: 1.125rem;
+}
