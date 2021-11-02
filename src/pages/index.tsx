@@ -28,10 +28,27 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ postsPagination }) => {
   const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
 
   async function handleLoadNewPosts(): Promise<void> {
-    const result = await fetch(postsPagination.next_page);
-    console.log(result);
+    const { next_page, results } = await fetch(postsPagination.next_page).then(
+      res => res.json()
+    );
+
+    const loadedPosts = results.map(post => ({
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
+      slug: post.uid,
+      data: {
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+      },
+    }));
+
+    setPosts([...posts, ...loadedPosts]);
+
+    setNextPage(next_page);
   }
 
   return (
@@ -47,7 +64,7 @@ const Home: React.FC<HomeProps> = ({ postsPagination }) => {
         />
       ))}
 
-      {postsPagination.next_page && (
+      {nextPage && (
         <button
           type="button"
           onClick={handleLoadNewPosts}

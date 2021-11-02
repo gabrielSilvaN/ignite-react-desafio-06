@@ -1,9 +1,10 @@
 import Prismic from '@prismicio/client';
-import { GetStaticPaths, GetStaticProps } from 'next';
-import { BiTime } from 'react-icons/bi';
-import { BsCalendar, BsPerson } from 'react-icons/bs';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
+import { BiTime } from 'react-icons/bi';
+import { BsCalendar, BsPerson } from 'react-icons/bs';
 import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
@@ -23,7 +24,6 @@ interface Post {
       }[];
     }[];
   };
-  total_time: string;
 }
 
 interface PostProps {
@@ -31,6 +31,27 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ post }) => {
+  const { isFallback } = useRouter();
+
+  if (isFallback) return <h1>Carregando...</h1>;
+
+  const formatedDate = format(
+    new Date(post.first_publication_date),
+    'dd LLL yyyy',
+    {
+      locale: ptBR,
+    }
+  );
+
+  const totalWords = post.data.content.reduce((acc, current) => {
+    const total = current.body.reduce((acc2, current2) => {
+      return acc2 + current2.text.split(' ').length;
+    }, 0);
+    return acc + current.heading.split(' ').length + total;
+  }, 0);
+
+  const readTime = `${Math.ceil(totalWords / 200)} min`;
+
   return (
     <div>
       <img
@@ -44,7 +65,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         <div className={`${commonStyles.info} ${styles.infoPost}`}>
           <span>
             <BsCalendar size={20} />
-            {post.first_publication_date}
+            {formatedDate}
           </span>
 
           <span>
@@ -54,7 +75,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
           <span>
             <BiTime size={20} />
-            {post.total_time}
+            {readTime}
           </span>
         </div>
 
@@ -75,7 +96,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
 export default Post;
 
-export const getStaticPaths: GetStaticPaths = async params => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
   const posts = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
@@ -102,36 +123,24 @@ export const getStaticPaths: GetStaticPaths = async params => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
-  const { first_publication_date, data } = await prismic.getByUID(
+  const { first_publication_date, data, uid } = await prismic.getByUID(
     'posts',
     String(slug),
     {}
   );
 
-  const totalTime = data.content.reduce((acc, current) => {
-    const total = current.body.reduce((acc2, current2) => {
-      return acc2 + current2.text.split(' ').length;
-    }, 0);
-    return acc + current.heading.split(' ').length + total;
-  }, 0);
-
   const post = {
-    first_publication_date: format(
-      new Date(first_publication_date),
-      'dd LLL yyyy',
-      {
-        locale: ptBR,
-      }
-    ),
+    first_publication_date,
+    uid,
     data: {
       title: data.title,
+      subtitle: data.subtitle,
       banner: {
         url: data.banner.url,
       },
       author: data.author,
       content: data.content,
     },
-    total_time: `${Math.ceil(totalTime / 200)} min`,
   };
 
   return {
